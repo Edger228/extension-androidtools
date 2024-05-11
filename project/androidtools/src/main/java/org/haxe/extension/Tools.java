@@ -29,6 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.haxe.extension.Extension;
 import org.haxe.lime.HaxeObject;
+import java.util.Collections;
+import androidx.documentfile.provider.DocumentFile;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 /* 
 	You can use the Android Extension class in order to hook
@@ -88,6 +93,74 @@ public class Tools extends Extension
 
 		return granted.toArray(new String[granted.size()]);
 	}
+
+	public static void launchFolderPicker(final int requestCode)
+	{
+        	Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        	mainActivity.startActivityForResult(intent, requestCode);
+    	}
+
+	public static String getFolderPathFromString(String folderUri)
+	{
+        	DocumentFile pickedDir = DocumentFile.fromTreeUri(mainActivity, Uri.parse(folderUri));
+        	if (pickedDir != null && pickedDir.exists())
+		{
+            		return getPathFromDocumentFile(pickedDir);
+        	}
+        	return null;
+    	}
+
+	public static String getFolderPath(Uri folderUri)
+	{
+        	DocumentFile pickedDir = DocumentFile.fromTreeUri(mainActivity, folderUri);
+        	if (pickedDir != null && pickedDir.exists())
+		{
+            	return getPathFromDocumentFile(pickedDir);
+        	}
+        	return null;
+    	}
+
+	// it's only returning the name of the picked directory and not it's path sadly
+	public static String getPathFromDocumentFile(DocumentFile documentFile)
+	{	
+        	List<String> pathSegments = new ArrayList<>();
+       		DocumentFile currentFile = documentFile;
+        	while (currentFile != null)
+		{
+        	    pathSegments.add(currentFile.getName());
+        	    currentFile = currentFile.getParentFile();
+        	}
+        	Collections.reverse(pathSegments);
+		String path = TextUtils.join("/", pathSegments);
+		
+		// String path = documentFile.getUri().getPath();
+		makeToastText("converted a uri into a path\n(" + path + ")", 0, -1, 0, 0);
+        	return path;
+   	}
+
+	// for debugging only, can be removed later
+	public static boolean checkDocumentFile(String folderUri, final int check)
+	{
+		try
+		{
+        		DocumentFile pickedDir = DocumentFile.fromTreeUri(mainActivity, Uri.parse(folderUri));
+			if(check == 0) return pickedDir.canRead();
+			if(check == 1) return pickedDir.canWrite();
+			if(check == 2) return pickedDir.exists();
+			return false;
+		} 
+		catch(Exception e)
+		{
+			makeToastText("checkDocumentFile: Error: " + e.toString(), 0, -1, 0, 0);
+			return false;
+		}
+	}
+
+	public static void saveFolderUri(Uri folderUri)
+	{
+        	SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mainActivity);
+        	preferences.edit().putString("folderUri", folderUri.toString()).apply();
+    	}
 
 	public static void makeToastText(final String message, final int duration, final int gravity, final int xOffset, final int yOffset)
 	{
