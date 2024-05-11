@@ -100,6 +100,18 @@ public class Tools extends Extension
         	mainActivity.startActivityForResult(intent, requestCode);
     	}
 
+	public static void launchFilePicker(final int requestCode)
+	{
+        	Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        	mainActivity.startActivityForResult(intent, requestCode);
+    	}
+
+	public static void launchFileCreater(final int requestCode)
+	{
+        	Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        	mainActivity.startActivityForResult(intent, requestCode);
+    	}
+
 	public static String getFolderPathFromString(String folderUri)
 	{
         	DocumentFile pickedDir = DocumentFile.fromTreeUri(mainActivity, Uri.parse(folderUri));
