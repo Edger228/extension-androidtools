@@ -11,6 +11,21 @@ import lime.utils.Log;
 
 class Tools
 {
+	public static function openDirectoryPicker(?requestCode:Int = 1):Void
+	{
+		openDirectoryPicker_jni(requestCode);
+	}
+
+	public static function getFolderPathFromString(uriString:String):String
+	{
+		return getFolderPathFromString_jni(uriString);
+	}
+
+	public static function checkDocumentFile(uriString:String, checkID:Int):Bool
+	{
+		return checkDocumentFile_jni(uriString, checkID);
+	}
+
 	/**
 	 * Prompt the user to install a specific APK file.
 	 */
@@ -131,6 +146,15 @@ class Tools
 	{
 		return isDexMode_jni();
 	}
+
+	@:noCompletion
+	private static var openDirectoryPicker_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'launchFolderPicker', '(I)V');
+
+	@:noCompletion
+	private static var getFolderPathFromString_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'getFolderPathFromString', '(Ljava/lang/String;)Ljava/lang/String;');
+
+	@:noCompletion
+	private static var checkDocumentFile_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'checkDocumentFile', '(Ljava/lang/String;I)Z');
 
 	@:noCompletion
 	private static var installPackage_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'installPackage', '(Ljava/lang/String;)Z');
