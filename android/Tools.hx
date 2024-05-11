@@ -16,14 +16,14 @@ class Tools
 		openDirectoryPicker_jni(requestCode);
 	}
 
-	public static function getFolderPathFromString(uriString:String):String
+	public static function getUriPath(uriString:String):String
 	{
-		return getFolderPathFromString_jni(uriString);
+		return getUriPath_jni(uriString);
 	}
 
-	public static function checkDocumentFile(uriString:String, checkID:Int):Bool
+	public static function registerUriAccess(uri:String):Void
 	{
-		return checkDocumentFile_jni(uriString, checkID);
+		registerUriAccess_jni(uri);
 	}
 
 	/**
@@ -151,10 +151,10 @@ class Tools
 	private static var openDirectoryPicker_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'launchFolderPicker', '(I)V');
 
 	@:noCompletion
-	private static var getFolderPathFromString_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'getFolderPathFromString', '(Ljava/lang/String;)Ljava/lang/String;');
+	private static var getUriPath_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'getUriPath', '(Ljava/lang/String;)Ljava/lang/String;');
 
 	@:noCompletion
-	private static var checkDocumentFile_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'checkDocumentFile', '(Ljava/lang/String;I)Z');
+	private static var registerUriAccess_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'registerUriAccess', '(Ljava/lang/String;)V');
 
 	@:noCompletion
 	private static var installPackage_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'installPackage', '(Ljava/lang/String;)Z');
