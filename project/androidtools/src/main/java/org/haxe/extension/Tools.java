@@ -92,36 +92,11 @@ public class Tools extends Extension
 		return granted.toArray(new String[granted.size()]);
 	}
 
-	public static void launchFolderPicker(final int requestCode)
-	{
-        	Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-		// since we're hardcoding the path into the external storage (fuck you uri) the user shouldn't be able to pick anything from anywhere else
-		intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        	mainActivity.startActivityForResult(intent, requestCode);
-    	}
-
-	public static String getUriPath(String uri)
-	{
-		return Environment.getExternalStorageDirectory() + "/" + Uri.parse(uri).getPath().split(":")[1];
-	}
-
 	public static void registerUriAccess(String uri)
 	{
 		ContentResolver contentResolver = mainContext.getContentResolver();
 		contentResolver.takePersistableUriPermission(Uri.parse(uri), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 	}
-
-	public static void launchFilePicker(final int requestCode)
-	{
-        	Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        	mainActivity.startActivityForResult(intent, requestCode);
-    	}
-
-	public static void launchFileCreater(final int requestCode)
-	{
-        	Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        	mainActivity.startActivityForResult(intent, requestCode);
-    	}
 
 	public static void makeToastText(final String message, final int duration, final int gravity, final int xOffset, final int yOffset)
 	{
