@@ -29,11 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.haxe.extension.Extension;
 import org.haxe.lime.HaxeObject;
-import java.util.Collections;
-import androidx.documentfile.provider.DocumentFile;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
 
 /* 
 	You can use the Android Extension class in order to hook
@@ -83,6 +78,7 @@ public class FileDialog extends Extension
 		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 		intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
 		intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+		intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
         	mainActivity.startActivityForResult(intent, requestCode);
     	}
 
