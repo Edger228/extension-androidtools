@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.haxe.extension.Extension;
 import org.haxe.lime.HaxeObject;
-import androidx.documentfile.provider.DocumentFile;
 import android.content.ContentResolver;
 import android.os.Environment;
 
@@ -92,11 +91,16 @@ public class Tools extends Extension
 		return granted.toArray(new String[granted.size()]);
 	}
 
-	public static void registerUriAccess(String uri)
+	public static void registerUriAccess(String uriString)
 	{
 		ContentResolver contentResolver = mainContext.getContentResolver();
-		contentResolver.takePersistableUriPermission(Uri.parse(uri), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+		contentResolver.takePersistableUriPermission(Uri.parse(uriString), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 	}
+
+	public static String getUriPath(String uriString)
+	{
+		return Environment.getExternalStorageDirectory() + "/" + Uri.parse(uriString).getPath().split(":")[1];
+    	}
 
 	public static void makeToastText(final String message, final int duration, final int gravity, final int xOffset, final int yOffset)
 	{
