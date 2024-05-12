@@ -210,7 +210,7 @@ public class Tools extends Extension
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 				mainContext.startActivity(intent);
 			}
 			else 
