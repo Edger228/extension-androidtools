@@ -11,10 +11,6 @@ import lime.utils.Log;
 
 class Tools
 {
-	public static function openDirectoryPicker(?requestCode:Int = 1):Void
-	{
-		openDirectoryPicker_jni(requestCode);
-	}
 
 	public static function getUriPath(uriString:String):String
 	{
@@ -146,9 +142,6 @@ class Tools
 	{
 		return isDexMode_jni();
 	}
-
-	@:noCompletion
-	private static var openDirectoryPicker_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'launchFolderPicker', '(I)V');
 
 	@:noCompletion
 	private static var getUriPath_jni:Dynamic = JNI.createStaticMethod('org/haxe/extension/Tools', 'getUriPath', '(Ljava/lang/String;)Ljava/lang/String;');

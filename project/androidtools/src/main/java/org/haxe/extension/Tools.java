@@ -99,8 +99,9 @@ public class Tools extends Extension
 
 	public static String getUriPath(String uriString)
 	{
-		return Environment.getExternalStorageDirectory() + "/" + Uri.parse(uriString).getPath().split(":")[1];
-    	}
+		Uri uri = Uri.parse(uriString);
+		return Environment.getExternalStorageDirectory() + "/" + uri.getPath().split(":")[1];
+    }
 
 	public static void makeToastText(final String message, final int duration, final int gravity, final int xOffset, final int yOffset)
 	{

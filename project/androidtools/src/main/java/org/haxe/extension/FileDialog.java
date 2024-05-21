@@ -71,16 +71,20 @@ public class FileDialog extends Extension
 
 	public static void launch(final String action, final int requestCode)
 	{
-        	if (action != Intent.ACTION_OPEN_DOCUMENT && action != Intent.ACTION_CREATE_DOCUMENT && action != Intent.ACTION_OPEN_DOCUMENT_TREE)
-			return;
+		List<String> actions = new ArrayList<String>();
+		actions.add(Intent.ACTION_OPEN_DOCUMENT);
+		actions.add(Intent.ACTION_CREATE_DOCUMENT);
+		actions.add(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
+		if(!actions.contains(action)) return;
 
 		Intent intent = new Intent(action);
 		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 		intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
 		intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
 		intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        	mainActivity.startActivityForResult(intent, requestCode);
-    	}
+        mainActivity.startActivityForResult(intent, requestCode);
+    }
 
 	@Override
 	public boolean onActivityResult(int requestCode, int resultCode, Intent data)
