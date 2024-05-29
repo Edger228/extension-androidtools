@@ -9,6 +9,7 @@
 
 		<config:android extension="org.haxe.extension.Tools" />
 		<config:android extension="org.haxe.extension.FileDialog" />
+		<config:android extension="org.haxe.extension.DocumentFileUtil" />
 	</section>
 
 </extension>

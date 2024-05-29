@@ -3,7 +3,6 @@ package android;
 #if (!android && !native)
 #error 'extension-androidtools is not supported on your current platform'
 #end
-import android.Permissions;
 import haxe.io.Path;
 import lime.app.Event;
 import lime.system.JNI;
