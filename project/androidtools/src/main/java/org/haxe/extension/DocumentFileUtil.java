@@ -127,9 +127,7 @@ public class DocumentFileUtil extends Extension
 		if (file != null && file.isFile())
 		{
 			try (InputStream is = contentResolver.openInputStream(file.getUri()))
-			{
-				InputStream is = contentResolver.openInputStream(file.getUri());
-				
+			{				
 				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 				StringBuilder sb = new StringBuilder();
 				String line;
