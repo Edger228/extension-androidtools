@@ -80,9 +80,7 @@ public class DocumentFileUtil extends Extension
 				DocumentFile next = current.findFile(segment);
 
 				if (next == null || !next.isDirectory())
-				{
 					next = current.createDirectory(segment);
-				}
 
 				current = next;
 			}
@@ -192,9 +190,7 @@ public class DocumentFileUtil extends Extension
 				int bytesRead;
 
 				while ((bytesRead = is.read(data)) != -1)
-				{
 					buffer.write(data, 0, bytesRead);
-				}
 
 				return buffer.toByteArray();
 			}
