@@ -1,20 +1,15 @@
 package org.haxe.extension;
 
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
-import android.content.Context;
 import android.content.ContentResolver;
 import androidx.documentfile.provider.DocumentFile;
 import java.io.File;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.ByteArrayOutputStream;
 import org.haxe.extension.Tools;
 import org.haxe.extension.Extension;
@@ -24,23 +19,19 @@ import org.haxe.extension.Extension;
 	into the Android activity lifecycle. This is not required
 	for standard Java code, this is designed for when you need
 	deeper integration.
-
 	You can access additional references from the Extension class,
 	depending on your needs:
-
 	- Extension.assetManager (android.content.res.AssetManager)
 	- Extension.callbackHandler (android.os.Handler)
 	- Extension.mainActivity (android.app.Activity)
 	- Extension.mainContext (android.content.Context)
 	- Extension.mainView (android.view.View)
-
 	You can also make references to static or instance methods
 	and properties on Java classes. These classes can be included
 	as single files using <java path="to/File.java" /> within your
 	project, or use the full Android Library Project format (such
 	as this example) in order to include your own AndroidManifest
 	data, additional dependencies, etc.
-
 	These are also optional, though this example shows a static
 	function for performing a single task, like returning a value
 	back to Haxe from Java.
@@ -49,284 +40,282 @@ public class DocumentFileUtil extends Extension
 {
 	public static final String LOG_TAG = "DocumentFileUtil";
 
-    public static Uri rootUri;
+	public static Uri rootUri;
+	public static DocumentFile rootDocument;
+	public static ContentResolver contentResolver;
 
-    public static DocumentFile rootDocument;
+	public static void init(String uriString)
+	{
+		try
+		{
+			rootUri = Uri.parse(uriString);
+			rootDocument = DocumentFile.fromTreeUri(mainContext, rootUri);
+			contentResolver = mainContext.getContentResolver();
+		}
+		catch (Exception e)
+		{
+			Log.e(LOG_TAG, "init: " + e.toString());
+			Tools.makeToastText("Initialization failed: " + e.getMessage(), 1, -1, 0, 0);
+		}
+	}
 
-    public static ContentResolver contentResolver;
+	public static void createDirectory(String directory)
+	{
+		try
+		{
+			String[] pathSegments = pathToSegments(directory);
+			DocumentFile currentDirectory = rootDocument;
 
-    public static void init(String uriString)
-    {
-        try
-        {
-            rootUri = Uri.parse(uriString);
-            rootDocument = DocumentFile.fromTreeUri(mainContext, rootUri);
-            contentResolver = mainContext.getContentResolver();
-        }
-        catch (Exception e)
-        {
-            Tools.makeToastText("init: " + e.toString(), 1, -1, 0, 0);
-        }
-    }
+			for (String segment : pathSegments)
+			{
+				DocumentFile nextDirectory = currentDirectory.findFile(segment);
 
-    public static void createDirectory(String directory)
-    {
-        try
-        {
-            String[] pathSegments = pathToSegments(directory);
-            DocumentFile currentDirectory = rootDocument;
+				if (nextDirectory == null || !nextDirectory.isDirectory())
+					nextDirectory = currentDirectory.createDirectory(segment);
 
-            for (String segment : pathSegments)
-            {
-                DocumentFile nextDirectory = currentDirectory.findFile(segment);
-                if ((nextDirectory == null || !nextDirectory.isDirectory()))
-                {
-                    nextDirectory = currentDirectory.createDirectory(segment);
-                }
-                currentDirectory = nextDirectory;
-            }
-        }
-        catch (Exception e)
-        {
-            Tools.makeToastText("createDirectory: " + e.toString(), 1, -1, 0, 0);
-        }
-    }
+				currentDirectory = nextDirectory;
+			}
+		}
+		catch (Exception e)
+		{
+			Log.e(LOG_TAG, "createDirectory: " + e.toString());
+			Tools.makeToastText("Failed to create directory: " + e.getMessage(), 1, -1, 0, 0);
+		}
+	}
 
-    public static void saveBytes(String file, int[] intArray)
-    {
-        try
-        {
-            // i'll keep it so we make the directory ourselves in haxe
-            DocumentFile targetDirectory = getDirectory(directory(file));
+	public static void saveBytes(String file, int[] intArray)
+	{
+		try
+		{
+			DocumentFile targetFile = getFile(file);
 
-            DocumentFile targetFile = createBinaryFile(targetDirectory, noDirectory(file));
+			if (targetFile == null || !targetFile.isFile())
+			{
+				DocumentFile parentDirectory = getDirectory(directory(file));
 
-            writeBytesToBinaryFile(targetFile, getBytesArray(intArray));
-        }
-        catch (Exception e)
-        {
-            Tools.makeToastText("saveBytes: " + e.toString(), 1, -1, 0, 0);
-        }
-    }
+				if (parentDirectory == null)
+					throw new IOException("Target directory not found: " + directory(file));
 
-    public static int[] getBytes(final String file)
-    {
-        DocumentFile documentFile = getDirectory(file);
-        try(InputStream inputStream = contentResolver.openInputStream(documentFile.getUri()))
-        {
-            byte[] bytes;
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            int bytesRead;
-            byte[] data = new byte[4096];
-            while ((bytesRead = inputStream.read(data, 0, data.length)) != -1)
-            {
-                buffer.write(data, 0, bytesRead);
-            }
-            bytes = buffer.toByteArray();
+				targetFile = parentDirectory.createFile("application/octet-stream", noDirectory(file));
+			}
 
-            int[] intArray = new int[bytes.length];
-            for (int i = 0; i < bytes.length; i++)
-            {
-                intArray[i] = bytes[i] & 0xFF;
-            }
-            inputStream.close();
-            return intArray;
-        }
-        catch (IOException e)
-        {
-            Tools.makeToastText("getBytes: " + e.toString(), 1, -1, 0, 0);
-            return new int[0];
-        }
-    }
+			writeBytesToBinaryFile(targetFile, getBytesArray(intArray));
+		}
+		catch (Exception e)
+		{
+			Log.e(LOG_TAG, "saveBytes: " + e.toString());
+			Tools.makeToastText("Failed to save bytes: " + e.getMessage(), 1, -1, 0, 0);
+		}
+	}
 
-    private static DocumentFile createBinaryFile(DocumentFile directory, String fileName)
-    {
-        try
-        {
-            DocumentFile file = directory.findFile(fileName);
-            if (file == null || !file.isFile())
-            {
-                file = directory.createFile("application/octet-stream", fileName);
-            }
-            return file;
-        }
-        catch (Exception e)
-        {
-            Tools.makeToastText("createBinaryFile: " + e.toString(), 1, -1, 0, 0);
-            return rootDocument;
-        }
-    }
+	public static int[] getBytes(final String file)
+	{
+		DocumentFile documentFile = getFile(file);
 
-    // it might be named getDirectory but it works as a getFile too ig??
-    public static DocumentFile getDirectory(String directory)
-    {
-        try
-        {
-            final String dir = directory(directory);
-            final String file = noDirectory(directory);
+		if (documentFile == null || !documentFile.isFile())
+		{
+			Tools.makeToastText("File not found: " + file, 1, -1, 0, 0);
+			return new int[0];
+		}
 
-            if((dir == null || dir == "") || dir == "./")
-            {
-                if(file == null || file == "")
-                    return rootDocument;
-                else
-                    return rootDocument.findFile(file);
-            }
+		try (InputStream inputStream = contentResolver.openInputStream(documentFile.getUri()))
+		{
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			byte[] data = new byte[4096];
+			int bytesRead;
 
-            String[] pathSegments = pathToSegments(directory);
+			while ((bytesRead = inputStream.read(data)) != -1)
+			{
+				buffer.write(data, 0, bytesRead);
+			}
 
-            DocumentFile currentDirectory = rootDocument;
+			byte[] bytes = buffer.toByteArray();
+			int[] intArray = new int[bytes.length];
 
-            for (String segment : pathSegments)
-            {
-                DocumentFile nextDirectory = currentDirectory.findFile(segment);
-                currentDirectory = nextDirectory;
-            }
-            return currentDirectory;
-        }
-        catch (Exception e)
-        {
-            Tools.makeToastText("getDirectory: " + e.toString(), 1, -1, 0, 0);
-            return rootDocument;
-        }
-    }
+			for (int i = 0; i < bytes.length; i++)
+			{
+				intArray[i] = bytes[i] & 0xFF;
+			}
 
-    public static String[] readDirectory(String directory)
-    {
-        try
-        {
-            final String dir = directory(directory);
+			return intArray;
+		}
+		catch (IOException e)
+		{
+			Log.e(LOG_TAG, "getBytes: " + e.toString());
 
-            // if no directory was specified, straight up return the list of rootDocument
-            // NOTE: readDirectory in FileSystem dosen't actuall work when you give it an empty string... it might work if you give it Sys.getCwd() tho so i'm keeping it this way
-            if((dir == null || dir == ""))
-                return formatTreeList(rootDocument.listFiles());
+			Tools.makeToastText("Failed to get bytes: " + e.getMessage(), 1, -1, 0, 0);
 
-            String[] pathSegments = pathToSegments(directory);
+			return new int[0];
+		}
+	}
 
-            DocumentFile currentDirectory = rootDocument;
+	private static DocumentFile createBinaryFile(DocumentFile directory, String fileName)
+	{
+		try
+		{
+			DocumentFile file = directory.findFile(fileName);
 
-            for (String segment : pathSegments)
-            {
-                DocumentFile nextDirectory = currentDirectory.findFile(segment);
-                currentDirectory = nextDirectory;
-            }
-            return formatTreeList(currentDirectory.listFiles());
-        }
-        catch (Exception e)
-        {
-            Tools.makeToastText("readDirectory: " + e.toString(), 1, -1, 0, 0);
-            return new String[0];
-        }
-    }
+			if (file == null || !file.isFile())
+				file = directory.createFile("application/octet-stream", fileName);
 
-    private static void writeBytesToBinaryFile(DocumentFile file, byte[] bytes)
-    {
-        try(OutputStream outputStream = contentResolver.openOutputStream(file.getUri()))
-        {
-            if (outputStream != null)
-            {
-                outputStream.write(bytes);
-                outputStream.close();
-            }
-        }
-        catch (IOException e)
-        {
-            Tools.makeToastText("writeBytesToBinaryFile: " + e.toString(), 1, -1, 0, 0);
-        }
-    }
+			return file;
+		}
+		catch (Exception e)
+		{
+			Log.e(LOG_TAG, "createBinaryFile: " + e.toString());
+			Tools.makeToastText("Failed to create binary file: " + e.getMessage(), 1, -1, 0, 0);
+			return null;
+		}
+	}
 
-    private static byte[] getBytesArray(int[] intArray)
-    {
-        try
-        {
-            byte[] byteArray = new byte[intArray.length];
+	public static DocumentFile getDirectory(String path)
+	{
+		try
+		{
+			if (isRootDirectory(path))
+				return rootDocument;
 
-            for (int i = 0; i < intArray.length; i++)
-            {
-                byteArray[i] = (byte) intArray[i];
-            }
+			String[] pathSegments = pathToSegments(path);
+			DocumentFile currentDirectory = rootDocument;
 
-            return byteArray;
-        }
-        catch (Exception e)
-        {
-            Tools.makeToastText("getBytesArray: " + e.toString(), 1, -1, 0, 0);
-            return new byte[0];
-        }
-    }
+			for (String segment : pathSegments)
+			{
+				DocumentFile nextDirectory = currentDirectory.findFile(segment);
 
-    private static String noDirectory(final String path)
-    {
-        // String[] pathSplit = pathToSegments(path);
+				if (nextDirectory == null || !nextDirectory.isDirectory())
+					return null;
 
-        // if(!pathSplit[pathSplit.length - 1].contains(".")) return "";
+				currentDirectory = nextDirectory;
+			}
 
-        // return pathSplit[pathSplit.length - 1];
+			return currentDirectory;
+		}
+		catch (Exception e)
+		{
+			Log.e(LOG_TAG, "getDirectory: " + e.toString());
+			Tools.makeToastText("Failed to get directory: " + e.getMessage(), 1, -1, 0, 0);
+			return null;
+		}
+	}
 
-        File file = new File(path);
+	public static DocumentFile getFile(String path)
+	{
+		try
+		{
+			if (isRootDirectory(path))
+				return null;
 
-        return file.getName();
-    }
+			String[] pathSegments = pathToSegments(path);
+			DocumentFile currentDirectory = rootDocument;
 
-    private static String directory(final String path)
-    {
-        // if(!noDirectory(path).contains(".")) return path;
+			for (int i = 0; i < pathSegments.length - 1; i++)
+			{
+				DocumentFile nextDirectory = currentDirectory.findFile(pathSegments[i]);
 
-        // String[] pathSegments = pathToSegments(path);
-        // String[] newArray = new String[pathSegments.length - 1];
-        // String pathDir = "";
+				if (nextDirectory == null || !nextDirectory.isDirectory())
+					return null;
 
-        // for (int i = 0; i < newArray.length; i++) {
-        //     newArray[i] = pathSegments[i];
-        // }
+				currentDirectory = nextDirectory;
+			}
 
-		// if (path.charAt(0) == '/')
-		// 	pathDir = "/" + pathDir;
+			return currentDirectory.findFile(pathSegments[pathSegments.length - 1]);
+		}
+		catch (Exception e)
+		{
+			Log.e(LOG_TAG, "getFile: " + e.toString());
+			Tools.makeToastText("Failed to get file: " + e.getMessage(), 1, -1, 0, 0);
+			return null;
+		}
+	}
 
-		// if (pathDir.charAt(pathDir.length()-1) != '/')
-		// 	pathDir += "/";
+	public static String[] readDirectory(String directory)
+	{
+		try
+		{
+			DocumentFile targetDirectory = getDirectory(directory);
 
-        // return pathDir;
+			if (targetDirectory == null || !targetDirectory.isDirectory())
+			{
+				Tools.makeToastText("Directory not found: " + directory, 1, -1, 0, 0);
+				return new String[0];
+			}
 
-        File file = new File(path);
+			return formatTreeList(targetDirectory.listFiles());
+		}
+		catch (Exception e)
+		{
+			Log.e(LOG_TAG, "readDirectory: " + e.toString());
+			Tools.makeToastText("Failed to read directory: " + e.getMessage(), 1, -1, 0, 0);
+			return new String[0];
+		}
+	}
 
-        return file.getParent();
-    }
+	private static void writeBytesToBinaryFile(DocumentFile file, byte[] bytes)
+	{
+		try (OutputStream outputStream = contentResolver.openOutputStream(file.getUri()))
+		{
+			if (outputStream != null)
+				outputStream.write(bytes);
+		}
+		catch (IOException e)
+		{
+			Log.e(LOG_TAG, "writeBytesToBinaryFile: " + e.toString());
+			Tools.makeToastText("Failed to write bytes: " + e.getMessage(), 1, -1, 0, 0);
+		}
+	}
 
-    private static String[] pathToSegments(final String path)
-    {
-        List<String> nonEmptyList = new ArrayList<>();
-        for (String str : path.split("/"))
-        {
-            if (str != null && str != "" && !str.trim().isEmpty())
-            {
-                nonEmptyList.add(str);
-            }
-        }
+	private static byte[] getBytesArray(int[] intArray)
+	{
+		byte[] byteArray = new byte[intArray.length];
 
-        String[] pathSegments = nonEmptyList.toArray(new String[0]);
-        return pathSegments;
-    }
+		for (int i = 0; i < intArray.length; i++)
+			byteArray[i] = (byte) intArray[i];
 
-    // there probably is a better way to do this but that's what got
-    private static String[] formatTreeList(final DocumentFile[] treeList)
-    {
-        try
-        {
-            List<String> pathList = new ArrayList<>();
+		return byteArray;
+	}
 
-            for(DocumentFile tree : treeList)
-            {
-                pathList.add(tree.getUri().getPath().split(":")[2]);
-            }
+	private static String noDirectory(final String path)
+	{
+		return new File(path).getName();
+	}
 
-            return pathList.toArray(new String[0]);
-        }
-        catch (Exception e)
-        {
-            Tools.makeToastText("formatTreeList: " + e.toString(), 1, -1, 0, 0);
-            return new String[0];
-        }
-    }
+	private static String directory(final String path)
+	{
+		return new File(path).getParent();
+	}
+
+	private static String[] pathToSegments(final String path)
+	{
+		List<String> nonEmptyList = new ArrayList<String>();
+	
+		for (String str : path.split("/"))
+		{
+			if (!str.trim().isEmpty())
+				nonEmptyList.add(str);
+		}
+
+		return nonEmptyList.toArray(new String[0]);
+	}
+
+	private static String[] formatTreeList(final DocumentFile[] treeList)
+	{
+		List<String> pathList = new ArrayList<>();
+
+		for (DocumentFile tree : treeList)
+		{
+			String[] splitPath = tree.getUri().getPath().split(":");
+
+			if (splitPath.length > 1)
+				pathList.add(splitPath[1]);
+			else
+				pathList.add(splitPath[0]);
+		}
+
+		return pathList.toArray(new String[0]);
+	}
+
+	private static boolean isRootDirectory(String path)
+	{
+		return path == null || path.trim().isEmpty() || path.equals(".");
+	}
 }
