@@ -87,7 +87,9 @@ public class DocumentFileUtil extends Extension
 				current = next;
 			}
 			return true;
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Log.e(LOG_TAG, "createDirectory: " + e.toString());
 			Tools.makeToastText("Failed to create directory: " + e.getMessage(), 1, -1, 0, 0);
 			return false;
@@ -126,6 +128,8 @@ public class DocumentFileUtil extends Extension
 		{
 			try (InputStream is = contentResolver.openInputStream(file.getUri()))
 			{
+				InputStream is = contentResolver.openInputStream(file.getUri());
+				
 				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 				StringBuilder sb = new StringBuilder();
 				String line;
@@ -155,11 +159,14 @@ public class DocumentFileUtil extends Extension
 			file = dir.createFile("text/plain", noDirectory(path));
 		}
 
-		try (OutputStream os = contentResolver.openOutputStream(file.getUri()))
+		try
 		{
+			OutputStream os = contentResolver.openOutputStream(file.getUri());
+	
 			OutputStreamWriter writer = new OutputStreamWriter(os);
 			writer.write(content);
 			writer.flush();
+
 			return true;
 		}
 		catch (IOException e)
@@ -176,8 +183,10 @@ public class DocumentFileUtil extends Extension
 
 		if (file != null && file.isFile())
 		{
-			try (InputStream is = contentResolver.openInputStream(file.getUri())
+			try
 			{
+				InputStream is = contentResolver.openInputStream(file.getUri());
+
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 				byte[] data = new byte[4096];
 				int bytesRead;
@@ -208,8 +217,9 @@ public class DocumentFileUtil extends Extension
 			file = dir.createFile("application/octet-stream", noDirectory(path));
 		}
 
-		try (OutputStream os = contentResolver.openOutputStream(file.getUri()))
+		try
 		{
+			OutputStream os = contentResolver.openOutputStream(file.getUri());
 			os.write(bytes);
 			return true;
 		}
@@ -242,7 +252,9 @@ public class DocumentFileUtil extends Extension
 			}
 
 			return current;
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Log.e(LOG_TAG, "getDirectory: " + e.toString());
 			return null;
 		}
