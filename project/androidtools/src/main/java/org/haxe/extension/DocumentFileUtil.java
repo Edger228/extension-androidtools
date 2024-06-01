@@ -151,7 +151,7 @@ public class DocumentFileUtil extends Extension
 		{
 			DocumentFile dir = getDirectory(directory(path));
 
-			file = dir.createFile("text/plain", noDirectory(path));
+			file = dir.createFile("application/octet-stream", noDirectory(path));
 		}
 
 		try
