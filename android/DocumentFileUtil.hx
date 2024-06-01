@@ -3,9 +3,9 @@ package android;
 #if (!android && !native)
 #error 'extension-androidtools is not supported on your current platform'
 #end
+import haxe.io.Bytes;
 import lime.system.JNI;
 import lime.utils.Log;
-import haxe.io.Bytes;
 
 /**
  * Utility class for interacting with the Android DocumentFile API.
@@ -19,14 +19,16 @@ class DocumentFileUtil
 	 *
 	 * @param uriString The string representation of the root URI.
 	 */
-	public static function init(uriString:String):Void
+	public static function init(uriString:String, forceInitialize:Bool = false):Void
 	{
-		if (!initialized)
-		{
-			init_jni(uriString);
+		if (initialized && !forceInitialize)
+			return;
 
-			initialized = true;
-		}
+		Log.info('Initializing DocumentFileUtil with "$uriString" root URI.');
+
+		init_jni(uriString);
+
+		initialized = true;
 	}
 
 	/**
@@ -39,7 +41,7 @@ class DocumentFileUtil
 	public static function exists(path:String):Bool
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return exists_jni(path);
 	}
@@ -54,7 +56,7 @@ class DocumentFileUtil
 	public static function fullPath(path:String):String
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return fullPath_jni(path);
 	}
@@ -69,7 +71,7 @@ class DocumentFileUtil
 	public static function absolutePath(path:String):String
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return absolutePath_jni(path);
 	}
@@ -84,7 +86,7 @@ class DocumentFileUtil
 	public static function isDirectory(path:String):Bool
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return isDirectory_jni(path);
 	}
@@ -99,7 +101,7 @@ class DocumentFileUtil
 	public static function createDirectory(path:String):Bool
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return createDirectory_jni(path);
 	}
@@ -114,7 +116,7 @@ class DocumentFileUtil
 	public static function deleteFile(path:String):Bool
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return deleteFile_jni(path);
 	}
@@ -129,7 +131,7 @@ class DocumentFileUtil
 	public static function deleteDirectory(path:String):Bool
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return deleteDirectory_jni(path);
 	}
@@ -144,7 +146,7 @@ class DocumentFileUtil
 	public static function readDirectory(path:String):Array<String>
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return readDirectory_jni(path);
 	}
@@ -159,7 +161,7 @@ class DocumentFileUtil
 	public static function getContent(path:String):String
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return getContent_jni(path);
 	}
@@ -175,7 +177,7 @@ class DocumentFileUtil
 	public static function saveContent(path:String, content:String):Bool
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return saveContent_jni(path, content);
 	}
@@ -190,7 +192,7 @@ class DocumentFileUtil
 	public static function getBytes(path:String):Bytes
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return Bytes.ofData(getBytes_jni(path));
 	}
@@ -206,7 +208,7 @@ class DocumentFileUtil
 	public static function saveBytes(path:String, bytes:Bytes):Bool
 	{
 		if (!initialized)
-			throw 'DocumentFileUtil is not initialized. Call init() first.';
+			Log.error('DocumentFileUtil is not initialized. Call init() first.');
 
 		return saveBytes_jni(path, bytes.getData());
 	}
