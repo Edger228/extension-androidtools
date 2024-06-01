@@ -8,14 +8,13 @@ import haxe.Resource;
 import lime.app.Event;
 import lime.system.JNI;
 import android.macros.FlxMacroUtil;
-using StringTools;
 
+using StringTools;
 
 enum abstract FileDialogType(Int) from Int to Int
 {
 	public static var fromStringMap(default, null):Map<String, FileDialogType> = FlxMacroUtil.buildMap("android.FileDialogType");
 	public static var toStringMap(default, null):Map<FileDialogType, String> = FlxMacroUtil.buildMap("android.FileDialogType", true);
-
 	var OPEN_DOCUMENT = 1;
 	var CREATE_DOCUMENT = 2;
 	var OPEN_DOCUMENT_TREE = 3;
@@ -39,8 +38,8 @@ class FileDialog
 	public static var onOpen:Event<Resource->Void> = new Event<Resource->Void>();
 	public static var onSave:Event<String->Void> = new Event<String->Void>();
 	public static var onSelect:Event<String->Void> = new Event<String->Void>();
-	// public static var onSelectMultiple:Event<Array<String>->Void> = new Event<Array<String>->Void>();
 
+	// public static var onSelectMultiple:Event<Array<String>->Void> = new Event<Array<String>->Void>();
 	@:noCompletion
 	private static var initialized:Bool = false;
 
@@ -81,7 +80,7 @@ private class FileDialogCallBack #if (lime >= "8.0.0") implements JNISafety #end
 
 		var data:Dynamic = Json.parse(content.trim());
 
-		switch(data.requestCode)
+		switch (data.requestCode)
 		{
 			case 1:
 				FileDialog.onOpen.dispatch(data);
@@ -92,6 +91,6 @@ private class FileDialogCallBack #if (lime >= "8.0.0") implements JNISafety #end
 		}
 
 		// if (FileDialog.onActivityResult != null)
-			// FileDialog.onActivityResult.dispatch(Json.parse(content.trim()));
+		// FileDialog.onActivityResult.dispatch(Json.parse(content.trim()));
 	}
 }
