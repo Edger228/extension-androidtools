@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
-import org.haxe.extension.Tools;
 import org.haxe.extension.Extension;
 
 public class DocumentFileUtil extends Extension
@@ -36,7 +35,6 @@ public class DocumentFileUtil extends Extension
 		catch (Exception e)
 		{
 			Log.e(LOG_TAG, "init: " + e.toString());
-			Tools.makeToastText("Initialization failed: " + e.getMessage(), 1, -1, 0, 0);
 		}
 	}
 
@@ -89,7 +87,6 @@ public class DocumentFileUtil extends Extension
 		catch (Exception e)
 		{
 			Log.e(LOG_TAG, "createDirectory: " + e.toString());
-			Tools.makeToastText("Failed to create directory: " + e.getMessage(), 1, -1, 0, 0);
 			return false;
 		}
 	}
