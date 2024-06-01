@@ -71,6 +71,7 @@ public class DocumentFileUtil extends Extension
 		try
 		{
 			String[] segments = pathToSegments(path);
+
 			DocumentFile current = rootDocument;
 
 			for (String segment : segments)
@@ -82,6 +83,7 @@ public class DocumentFileUtil extends Extension
 
 				current = next;
 			}
+
 			return true;
 		}
 		catch (Exception e)
@@ -132,6 +134,8 @@ public class DocumentFileUtil extends Extension
 				while ((line = reader.readLine()) != null)
 					sb.append(line).append("\n");
 
+				is.close();
+
 				return sb.toString();
 			}
 			catch (IOException e)
@@ -162,6 +166,8 @@ public class DocumentFileUtil extends Extension
 			writer.write(content);
 			writer.flush();
 
+			os.close();
+
 			return true;
 		}
 		catch (IOException e)
@@ -189,6 +195,8 @@ public class DocumentFileUtil extends Extension
 				while ((bytesRead = is.read(data)) != -1)
 					buffer.write(data, 0, bytesRead);
 
+				is.close();
+
 				return buffer.toByteArray();
 			}
 			catch (IOException e)
@@ -214,6 +222,8 @@ public class DocumentFileUtil extends Extension
 		{
 			OutputStream os = contentResolver.openOutputStream(file.getUri());
 			os.write(bytes);
+			os.flush();
+
 			return true;
 		}
 		catch (IOException e)
