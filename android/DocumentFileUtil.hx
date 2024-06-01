@@ -18,6 +18,7 @@ class DocumentFileUtil
 	 * Initializes the DocumentFileUtil with the specified root URI.
 	 *
 	 * @param uriString The string representation of the root URI.
+	 * @param forceInitialize Whether to forcefully reinitialize with the other root URI.
 	 */
 	public static function init(uriString:String, forceInitialize:Bool = false):Void
 	{
