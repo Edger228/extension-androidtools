@@ -132,8 +132,11 @@ public class DocumentFileUtil extends Extension
 				String line;
 
 				while ((line = reader.readLine()) != null)
+				{
 					sb.append(line).append("\n");
+				}
 
+				reader.close();
 				is.close();
 
 				return sb.toString();
@@ -166,6 +169,7 @@ public class DocumentFileUtil extends Extension
 			writer.write(content);
 			writer.flush();
 
+			writer.close();
 			os.close();
 
 			return true;
@@ -193,8 +197,11 @@ public class DocumentFileUtil extends Extension
 				int bytesRead;
 
 				while ((bytesRead = is.read(data)) != -1)
+				{
 					buffer.write(data, 0, bytesRead);
+				}
 
+				buffer.close();
 				is.close();
 
 				return buffer.toByteArray();
@@ -223,6 +230,7 @@ public class DocumentFileUtil extends Extension
 			OutputStream os = contentResolver.openOutputStream(file.getUri());
 			os.write(bytes);
 			os.flush();
+			os.close();
 
 			return true;
 		}
