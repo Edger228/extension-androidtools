@@ -3,6 +3,8 @@ package android.os;
 #if (!android && !native)
 #error 'extension-androidtools is not supported on your current platform'
 #end
+
+import haxe.Exception;
 import lime.system.JNI;
 
 class Environment
@@ -78,6 +80,8 @@ class Environment
 	 */
 	public static inline function isExternalStorageManager():Bool
 	{
+		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+			throw new Exception("java.lang.NoSuchMethodError: No virtual method isExternalStorageManager()Z was found on the current Android API\nMake sure this method is called on API Level 30 and above only");
 		return isExternalStorageManager_jni();
 	}
 
@@ -86,6 +90,8 @@ class Environment
 	 */
 	public static inline function isExternalStorageLegacy():Bool
 	{
+		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
+			throw new Exception("java.lang.NoSuchMethodError: No virtual method isExternalStorageLegacy()Z was found on the current Android API\nMake sure this method is called on API Level 29 and above only");
 		return isExternalStorageLegacy_jni();
 	}
 
@@ -121,14 +127,14 @@ class Environment
 
 	@:noCompletion
 	private static var isExternalStorageManager_jni:Dynamic = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) ? JNI.createStaticMethod('android/os/Environment',
-		'isExternalStorageManager', '()Z') : () -> return true;
+		'isExternalStorageManager', '()Z') : () -> return null;
 
 	@:noCompletion
 	private static var isExternalStorageEmulated_jni:Dynamic = JNI.createStaticMethod('android/os/Environment', 'isExternalStorageEmulated', '()Z');
 
 	@:noCompletion
 	private static var isExternalStorageLegacy_jni:Dynamic = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ? JNI.createStaticMethod('android/os/Environment',
-		'isExternalStorageLegacy', '()Z') : () -> return true;
+		'isExternalStorageLegacy', '()Z') : () -> return null;
 
 	@:noCompletion
 	private static var isExternalStorageRemovable_jni:Dynamic = JNI.createStaticMethod('android/os/Environment', 'isExternalStorageRemovable', '()Z');

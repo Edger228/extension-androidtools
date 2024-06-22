@@ -30,7 +30,7 @@ import java.util.List;
 import org.haxe.extension.Extension;
 import org.haxe.lime.HaxeObject;
 
-/* 
+/*
 	You can use the Android Extension class in order to hook
 	into the Android activity lifecycle. This is not required
 	for standard Java code, this is designed for when you need
@@ -46,7 +46,7 @@ import org.haxe.lime.HaxeObject;
 	- Extension.mainView (android.view.View)
 
 	You can also make references to static or instance methods
-	and properties on Java classes. These classes can be included 
+	and properties on Java classes. These classes can be included
 	as single files using <java path="to/File.java" /> within your
 	project, or use the full Android Library Project format (such
 	as this example) in order to include your own AndroidManifest
@@ -97,7 +97,10 @@ public class FileDialog extends Extension
 			content.put("resultCode", resultCode);
 
 			if (data != null && data.getData() != null)
+			{
 				content.put("uri", data.getData().toString());
+				content.put("path", data.getData().getPath());
+			}
 
 			if (gson == null)
 				gson = new GsonBuilder().serializeNulls().create();
