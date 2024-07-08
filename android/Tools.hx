@@ -36,6 +36,12 @@ class Tools
 		JNICache.createStaticMethod('org/haxe/extension/Tools', 'enableAppSecure', '()V')();
 	}
 
+	public static function getExternalStorageDirectory():String
+	{
+		var getExternalStorageDirectory_jni = JNI.createStaticMethod("org/haxe/extension/Tools", "getExternalStorageDirectory", "()Ljava/lang/String;");
+		return getExternalStorageDirectory_jni();
+	}
+	
 	/**
 	 * Clears the security flag from the application's window.
 	 */
